@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Download, RefreshCw } from "lucide-react";
+import { Loader2, Download, RefreshCw, ExternalLink } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { PriceAnalytics } from "@/components/analytics/PriceAnalytics";
@@ -180,13 +181,6 @@ const RequestDetail = () => {
               </div>
             </div>
           )}
-
-          <div>
-            <h3 className="font-medium mb-2">Источники:</h3>
-            <p className="text-sm text-muted-foreground">
-              {request.sources_selected?.join(", ") || "Не указаны"}
-            </p>
-          </div>
         </CardContent>
       </Card>
 
@@ -262,9 +256,52 @@ const RequestDetail = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Аналогов найдено: {request.analogs?.length || 0}
-              </p>
+              {request.analogs && request.analogs.length > 0 ? (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Название товара</TableHead>
+                        <TableHead>Поставщик/Бренд</TableHead>
+                        <TableHead>Цена</TableHead>
+                        <TableHead>Источник</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {request.analogs.flatMap((analog: any) =>
+                        analog.prices?.map((price: any) => (
+                          <TableRow key={`${analog.id}-${price.id}`}>
+                            <TableCell className="font-medium">{analog.name}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {analog.supplier_or_brand || "—"}
+                            </TableCell>
+                            <TableCell className="font-mono">{price.price?.toLocaleString("ru-RU")} ₽</TableCell>
+                            <TableCell>
+                              {price.source_url ? (
+                                <a 
+                                  href={price.source_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                                >
+                                  {price.source_name}
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">{price.source_name}</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )) || []
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Аналоги не найдены
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
