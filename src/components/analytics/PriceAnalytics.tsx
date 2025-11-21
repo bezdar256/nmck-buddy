@@ -133,29 +133,6 @@ export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps
         </Card>
       </div>
 
-      {/* График по источникам */}
-      {chartData.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Цены по источникам</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="source_name" />
-                <YAxis />
-                <Tooltip
-                  formatter={(value: number) => `${value.toLocaleString("ru-RU")} ₽`}
-                />
-                <Legend />
-                <Bar dataKey="min_price" fill="hsl(var(--primary))" name="Мин. цена по источнику" />
-                <Bar dataKey="avg_price" fill="hsl(var(--secondary))" name="Средняя цена по источнику" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Диапазон цен */}
       <Card>
