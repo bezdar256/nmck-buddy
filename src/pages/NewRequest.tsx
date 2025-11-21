@@ -98,10 +98,10 @@ const NewRequest = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.unit || !formData.description) {
+    if (!formData.unit || (!formData.description && !uploadedFile)) {
       toast({
         title: "Ошибка",
-        description: "Заполните все обязательные поля",
+        description: uploadedFile ? "Заполните единицу измерения" : "Заполните все обязательные поля или загрузите Excel файл",
         variant: "destructive",
       });
       return;
@@ -259,15 +259,22 @@ const NewRequest = () => {
               </div>
 
               <div>
-                <Label htmlFor="description">Описание / выдержка из ТЗ *</Label>
+                <Label htmlFor="description">
+                  Описание / выдержка из ТЗ {!uploadedFile && "*"}
+                </Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Вставьте текст технического задания или описание требуемых товаров..."
                   rows={6}
-                  required
+                  required={!uploadedFile}
                 />
+                {uploadedFile && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Необязательно при загрузке Excel файла
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
