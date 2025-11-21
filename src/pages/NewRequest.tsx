@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Loader2 } from "lucide-react";
+import { Plus, Trash2, Loader2, FileUp, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import * as XLSX from "xlsx";
 
 
 const NewRequest = () => {
@@ -26,6 +27,7 @@ const NewRequest = () => {
   });
 
   const [categories, setCategories] = useState<string[]>([]);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
 
   
@@ -42,6 +44,54 @@ const NewRequest = () => {
     const updated = [...categories];
     updated[index] = value;
     setCategories(updated);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadedFile(file);
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][];
+
+      // Предполагаемая структура Excel:
+      // Строка 1: Название, Количество, Единица, Описание, Категория
+      // Строка 2+: данные
+      
+      if (jsonData.length > 1) {
+        const row = jsonData[1];
+        setFormData({
+          title: row[0]?.toString() || "",
+          quantity: parseInt(row[1]?.toString()) || 1,
+          unit: row[2]?.toString() || "шт",
+          description: row[3]?.toString() || "",
+        });
+
+        if (row[4]) {
+          const cats = row[4].toString().split(",").map((c: string) => c.trim()).filter(Boolean);
+          setCategories(cats);
+        }
+
+        toast({
+          title: "Успешно",
+          description: "Данные из Excel файла загружены",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обработать Excel файл",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const removeFile = () => {
+    setUploadedFile(null);
   };
 
 
@@ -105,6 +155,41 @@ const NewRequest = () => {
               <CardDescription>Общая информация о закупке</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <Label>Загрузить данные из Excel</Label>
+                <div className="flex items-center gap-2">
+                  <label 
+                    htmlFor="excel-upload" 
+                    className="flex items-center gap-2 px-4 py-2 border border-input rounded-md cursor-pointer hover:bg-accent transition-colors"
+                  >
+                    <FileUp className="h-4 w-4" />
+                    <span className="text-sm">Выбрать файл</span>
+                  </label>
+                  <input
+                    id="excel-upload"
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  {uploadedFile && (
+                    <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md">
+                      <span className="text-sm">{uploadedFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={removeFile}
+                        className="hover:bg-primary/20 rounded-full p-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Формат: Название | Количество | Единица | Описание | Категория
+                </p>
+              </div>
+
               <div>
                 <Label htmlFor="title">Название расчёта (для вашего удобства)</Label>
                 <Input
