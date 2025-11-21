@@ -18,25 +18,65 @@ serve(async (req) => {
     );
 
     const body = await req.json();
-    const { title, category, unit, quantity, description, characteristics, search_mode, source_ids } = body;
+    const { title, category, unit, quantity, description, characteristics, search_mode, source_ids, draft_id } = body;
 
-    // Create request
-    const { data: request, error: requestError } = await supabase
-      .from("requests")
-      .insert({
-        title,
-        category,
-        unit,
-        quantity,
-        description,
-        search_mode,
-        sources_selected: source_ids,
-        status: "draft"
-      })
-      .select()
-      .single();
+    let request;
 
-    if (requestError) throw requestError;
+    if (draft_id) {
+      // Используем существующий черновик
+      const { data: existingRequest, error: fetchError } = await supabase
+        .from("requests")
+        .select("*")
+        .eq("id", draft_id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Обновляем запрос
+      const { data: updatedRequest, error: updateError } = await supabase
+        .from("requests")
+        .update({
+          title,
+          category,
+          unit,
+          quantity,
+          description,
+          search_mode,
+          sources_selected: source_ids,
+          status: "draft"
+        })
+        .eq("id", draft_id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+
+      // Удаляем старые данные если они есть
+      await supabase.from("analogs").delete().eq("request_id", draft_id);
+      await supabase.from("characteristics").delete().eq("request_id", draft_id);
+      await supabase.from("aggregated_results").delete().eq("request_id", draft_id);
+
+      request = updatedRequest;
+    } else {
+      // Создаём новый запрос
+      const { data: newRequest, error: requestError } = await supabase
+        .from("requests")
+        .insert({
+          title,
+          category,
+          unit,
+          quantity,
+          description,
+          search_mode,
+          sources_selected: source_ids,
+          status: "draft"
+        })
+        .select()
+        .single();
+
+      if (requestError) throw requestError;
+      request = newRequest;
+    }
 
     // Create characteristics
     if (characteristics && characteristics.length > 0) {

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Loader2, FileUp, X } from "lucide-react";
+import { Plus, Trash2, Loader2, FileUp, X, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from "xlsx";
@@ -16,8 +16,11 @@ import * as XLSX from "xlsx";
 
 const NewRequest = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [isEditingDraft, setIsEditingDraft] = useState(false);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -28,6 +31,54 @@ const NewRequest = () => {
 
   const [categories, setCategories] = useState<string[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      loadDraft(id);
+    }
+  }, [id]);
+
+  const loadDraft = async (draftId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("requests")
+        .select(`
+          *,
+          characteristics (name, value)
+        `)
+        .eq("id", draftId)
+        .eq("status", "draft")
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setFormData({
+          title: data.title,
+          unit: data.unit,
+          quantity: data.quantity,
+          description: data.description,
+        });
+        
+        if (data.category) {
+          setCategories(data.category.split(", ").filter(Boolean));
+        }
+        
+        setIsEditingDraft(true);
+        
+        toast({
+          title: "Черновик загружен",
+          description: "Вы можете продолжить редактирование",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось загрузить черновик",
+        variant: "destructive",
+      });
+    }
+  };
 
 
   
@@ -94,6 +145,69 @@ const NewRequest = () => {
     setUploadedFile(null);
   };
 
+  const saveDraft = async () => {
+    if (!formData.unit) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните хотя бы единицу измерения",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingDraft(true);
+
+    try {
+      const requestData = {
+        title: formData.title || "Без названия",
+        unit: formData.unit,
+        quantity: formData.quantity,
+        description: formData.description,
+        category: categories.filter(c => c.trim()).join(", ") || null,
+        status: "draft" as const,
+      };
+
+      if (isEditingDraft && id) {
+        // Обновляем существующий черновик
+        const { error } = await supabase
+          .from("requests")
+          .update(requestData)
+          .eq("id", id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Черновик сохранён",
+          description: "Вы можете вернуться к нему позже",
+        });
+      } else {
+        // Создаём новый черновик
+        const { data, error } = await supabase
+          .from("requests")
+          .insert(requestData)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        toast({
+          title: "Черновик сохранён",
+          description: "Вы можете вернуться к нему позже",
+        });
+
+        navigate("/requests");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось сохранить черновик",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,12 +224,32 @@ const NewRequest = () => {
     setLoading(true);
 
     try {
+      // Если редактируем черновик, сначала обновляем его
+      let requestId = id;
+      
+      if (isEditingDraft && id) {
+        const { error: updateError } = await supabase
+          .from("requests")
+          .update({
+            title: formData.title || "Без названия",
+            unit: formData.unit,
+            quantity: formData.quantity,
+            description: formData.description,
+            category: categories.filter(c => c.trim()).join(", ") || null,
+          })
+          .eq("id", id);
+
+        if (updateError) throw updateError;
+      }
+
       const { data, error } = await supabase.functions.invoke("create-request", {
         body: {
           ...formData,
+          title: formData.title || "Без названия",
           category: categories.filter(c => c.trim()).join(", ") || null,
           search_mode: "STRICT",
           source_ids: ["1", "2", "3"],
+          draft_id: isEditingDraft ? id : undefined,
         },
       });
 
@@ -142,7 +276,9 @@ const NewRequest = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Новый расчёт НМЦК</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            {isEditingDraft ? "Редактирование черновика" : "Новый расчёт НМЦК"}
+          </h1>
           <p className="text-muted-foreground">
             Заполните форму для автоматического подбора аналогов и расчёта НМЦК
           </p>
@@ -281,16 +417,39 @@ const NewRequest = () => {
 
 
 
-          <Button type="submit" size="lg" className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Подбираем аналоги и собираем цены...
-              </>
-            ) : (
-              "Рассчитать НМЦК"
-            )}
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="flex-1"
+              onClick={saveDraft}
+              disabled={loading || savingDraft}
+            >
+              {savingDraft ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Сохраняем...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Сохранить как черновик
+                </>
+              )}
+            </Button>
+            
+            <Button type="submit" size="lg" className="flex-1" disabled={loading || savingDraft}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Подбираем аналоги и собираем цены...
+                </>
+              ) : (
+                "Рассчитать НМЦК"
+              )}
+            </Button>
+          </div>
         </form>
       </div>
     </div>
