@@ -1,6 +1,36 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
+// ========== MOCK DATA FOR DEMO ==========
+// Set to false when real data is available
+const USE_MOCK_DATA = true;
+
+const MOCK_AGG = {
+  min_price: 12000,
+  max_price: 18900,
+  avg_price: 14800,
+  median_price: 14750,
+  p10_price: 12500,
+  p90_price: 17500,
+  recommended_nmck: 14800,
+  max_over_min_abs: 6900,
+  max_over_min_pct: 57.5,
+  avg_over_min_abs: 2800,
+  avg_over_min_pct: 23.3,
+  prices_used_count: 12,
+  prices_total_count: 15
+};
+
+const MOCK_PRICES = [
+  { source_name: "Маркетплейс A", price: 13500 },
+  { source_name: "Маркетплейс A", price: 14200 },
+  { source_name: "Маркетплейс B", price: 15000 },
+  { source_name: "Маркетплейс B", price: 14800 },
+  { source_name: "Маркетплейс C", price: 12500 },
+  { source_name: "Маркетплейс C", price: 16200 },
+];
+// ========== END MOCK DATA ==========
+
 interface AggregatedResult {
   min_price: number;
   max_price: number;
@@ -28,7 +58,11 @@ interface PriceAnalyticsProps {
 }
 
 export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps) => {
-  if (!aggregatedResult || !prices || prices.length === 0) {
+  // Use mock data if enabled and no real data
+  const agg = USE_MOCK_DATA && (!aggregatedResult || !prices?.length) ? MOCK_AGG : aggregatedResult;
+  const pricesData = USE_MOCK_DATA && (!prices?.length) ? MOCK_PRICES : prices;
+
+  if (!agg || !pricesData || pricesData.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground">Недостаточно данных для визуализации</p>
@@ -37,7 +71,7 @@ export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps
   }
 
   // Группировка цен по источникам
-  const pricesBySource = prices.reduce((acc, price) => {
+  const pricesBySource = pricesData.reduce((acc, price) => {
     if (!acc[price.source_name]) {
       acc[price.source_name] = [];
     }
@@ -53,10 +87,10 @@ export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps
   }));
 
   // Диапазон для визуализации
-  const priceRange = aggregatedResult.max_price - aggregatedResult.min_price;
-  const p10Position = ((aggregatedResult.p10_price - aggregatedResult.min_price) / priceRange) * 100;
-  const medianPosition = ((aggregatedResult.median_price - aggregatedResult.min_price) / priceRange) * 100;
-  const p90Position = ((aggregatedResult.p90_price - aggregatedResult.min_price) / priceRange) * 100;
+  const priceRange = agg.max_price - agg.min_price;
+  const p10Position = ((agg.p10_price - agg.min_price) / priceRange) * 100;
+  const medianPosition = ((agg.median_price - agg.min_price) / priceRange) * 100;
+  const p90Position = ((agg.p90_price - agg.min_price) / priceRange) * 100;
 
   return (
     <div className="space-y-6">
@@ -64,10 +98,10 @@ export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps
       <div className="bg-primary/5 rounded-lg p-6 border border-primary/20">
         <h3 className="text-lg font-medium text-muted-foreground mb-2">Рекомендованная НМЦК</h3>
         <div className="text-4xl font-bold text-primary mb-2">
-          {aggregatedResult.recommended_nmck.toLocaleString("ru-RU")} ₽
+          {agg.recommended_nmck.toLocaleString("ru-RU")} ₽
         </div>
         <p className="text-sm text-muted-foreground">
-          На основе {aggregatedResult.prices_used_count} цен из {aggregatedResult.prices_total_count}, без значений за пределами P10–P90
+          На основе {agg.prices_used_count} цен из {agg.prices_total_count}, без значений за пределами P10–P90
         </p>
       </div>
 
@@ -76,25 +110,25 @@ export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground mb-1">Минимальная цена</div>
-            <div className="text-2xl font-bold">{aggregatedResult.min_price.toLocaleString("ru-RU")} ₽</div>
+            <div className="text-2xl font-bold">{agg.min_price.toLocaleString("ru-RU")} ₽</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground mb-1">Максимальная цена</div>
-            <div className="text-2xl font-bold">{aggregatedResult.max_price.toLocaleString("ru-RU")} ₽</div>
+            <div className="text-2xl font-bold">{agg.max_price.toLocaleString("ru-RU")} ₽</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground mb-1">Средняя цена</div>
-            <div className="text-2xl font-bold">{aggregatedResult.avg_price.toLocaleString("ru-RU")} ₽</div>
+            <div className="text-2xl font-bold">{agg.avg_price.toLocaleString("ru-RU")} ₽</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground mb-1">Медиана</div>
-            <div className="text-2xl font-bold">{aggregatedResult.median_price.toLocaleString("ru-RU")} ₽</div>
+            <div className="text-2xl font-bold">{agg.median_price.toLocaleString("ru-RU")} ₽</div>
           </CardContent>
         </Card>
       </div>
@@ -152,22 +186,22 @@ export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps
             </div>
             
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Мин: {aggregatedResult.min_price.toLocaleString("ru-RU")} ₽</span>
-              <span>Макс: {aggregatedResult.max_price.toLocaleString("ru-RU")} ₽</span>
+              <span>Мин: {agg.min_price.toLocaleString("ru-RU")} ₽</span>
+              <span>Макс: {agg.max_price.toLocaleString("ru-RU")} ₽</span>
             </div>
             
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <div className="font-medium">P10</div>
-                <div>{aggregatedResult.p10_price.toLocaleString("ru-RU")} ₽</div>
+                <div>{agg.p10_price.toLocaleString("ru-RU")} ₽</div>
               </div>
               <div>
                 <div className="font-medium">Медиана</div>
-                <div>{aggregatedResult.median_price.toLocaleString("ru-RU")} ₽</div>
+                <div>{agg.median_price.toLocaleString("ru-RU")} ₽</div>
               </div>
               <div>
                 <div className="font-medium">P90</div>
-                <div>{aggregatedResult.p90_price.toLocaleString("ru-RU")} ₽</div>
+                <div>{agg.p90_price.toLocaleString("ru-RU")} ₽</div>
               </div>
             </div>
           </div>
@@ -181,16 +215,16 @@ export const PriceAnalytics = ({ aggregatedResult, prices }: PriceAnalyticsProps
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            Диапазон цен по всем источникам: от {aggregatedResult.min_price.toLocaleString("ru-RU")} ₽ до {aggregatedResult.max_price.toLocaleString("ru-RU")} ₽.
+            Диапазон цен по всем источникам: от {agg.min_price.toLocaleString("ru-RU")} ₽ до {agg.max_price.toLocaleString("ru-RU")} ₽.
           </p>
           <p>
-            80% цен (P10–P90) лежат в диапазоне {aggregatedResult.p10_price.toLocaleString("ru-RU")}–{aggregatedResult.p90_price.toLocaleString("ru-RU")} ₽.
+            80% цен (P10–P90) лежат в диапазоне {agg.p10_price.toLocaleString("ru-RU")}–{agg.p90_price.toLocaleString("ru-RU")} ₽.
           </p>
           <p>
-            Максимальная цена превышает минимальную на {aggregatedResult.max_over_min_abs.toLocaleString("ru-RU")} ₽ ({aggregatedResult.max_over_min_pct.toFixed(1)}%).
+            Максимальная цена превышает минимальную на {agg.max_over_min_abs.toLocaleString("ru-RU")} ₽ ({agg.max_over_min_pct.toFixed(1)}%).
           </p>
           <p>
-            Средняя цена выше минимальной на {aggregatedResult.avg_over_min_abs.toLocaleString("ru-RU")} ₽ ({aggregatedResult.avg_over_min_pct.toFixed(1)}%).
+            Средняя цена выше минимальной на {agg.avg_over_min_abs.toLocaleString("ru-RU")} ₽ ({agg.avg_over_min_pct.toFixed(1)}%).
           </p>
         </CardContent>
       </Card>
