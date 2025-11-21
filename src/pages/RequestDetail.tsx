@@ -312,19 +312,15 @@ const RequestDetail = () => {
               <CardTitle>Визуализация данных</CardTitle>
             </CardHeader>
             <CardContent>
-              {agg ? (
-                <PriceAnalytics
-                  aggregatedResult={agg}
-                  prices={request.analogs?.flatMap((analog: any) =>
-                    analog.prices?.map((price: any) => ({
-                      source_name: price.source_name,
-                      price: price.price,
-                    })) || []
-                  ) || []}
-                />
-              ) : (
-                <p className="text-muted-foreground">Недостаточно данных для визуализации</p>
-              )}
+              <PriceAnalytics
+                aggregatedResult={agg}
+                prices={request.analogs?.flatMap((analog: any) =>
+                  analog.prices?.map((price: any) => ({
+                    source_name: price.source_name,
+                    price: price.price,
+                  })) || []
+                ) || []}
+              />
             </CardContent>
           </Card>
         </TabsContent>
