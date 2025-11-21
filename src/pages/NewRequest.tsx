@@ -48,7 +48,7 @@ const NewRequest = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.unit || !formData.description) {
+    if (!formData.unit || !formData.description) {
       toast({
         title: "Ошибка",
         description: "Заполните все обязательные поля",
@@ -106,13 +106,12 @@ const NewRequest = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="title">Название закупки *</Label>
+                <Label htmlFor="title">Название расчёта (для вашего удобства)</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Например: Поставка одежды для детей"
-                  required
+                  placeholder="Оставьте пустым для автоматической генерации или введите своё"
                 />
               </div>
 
