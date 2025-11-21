@@ -18,7 +18,7 @@ serve(async (req) => {
     );
 
     const body = await req.json();
-    const { title, category, unit, quantity, description, characteristics, search_mode, source_ids, draft_id } = body;
+    const { title, category, unit, quantity, description, characteristics, search_mode, source_ids, draft_id, uploaded_file_name } = body;
 
     let request;
 
@@ -43,7 +43,8 @@ serve(async (req) => {
           description,
           search_mode,
           sources_selected: source_ids,
-          status: "draft"
+          status: "draft",
+          uploaded_file_name,
         })
         .eq("id", draft_id)
         .select()
@@ -69,7 +70,8 @@ serve(async (req) => {
           description,
           search_mode,
           sources_selected: source_ids,
-          status: "draft"
+          status: "draft",
+          uploaded_file_name,
         })
         .select()
         .single();

@@ -267,6 +267,7 @@ export type Database = {
           title: string
           unit: string
           updated_at: string
+          uploaded_file_name: string | null
         }
         Insert: {
           category?: string | null
@@ -281,6 +282,7 @@ export type Database = {
           title: string
           unit: string
           updated_at?: string
+          uploaded_file_name?: string | null
         }
         Update: {
           category?: string | null
@@ -295,6 +297,7 @@ export type Database = {
           title?: string
           unit?: string
           updated_at?: string
+          uploaded_file_name?: string | null
         }
         Relationships: [
           {
