@@ -12,10 +12,6 @@ import { Plus, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Characteristic {
-  name: string;
-  value: string;
-}
 
 const NewRequest = () => {
   const navigate = useNavigate();
@@ -31,25 +27,9 @@ const NewRequest = () => {
     searchMode: "STRICT" as "STRICT" | "EXTENDED",
   });
 
-  const [characteristics, setCharacteristics] = useState<Characteristic[]>([
-    { name: "", value: "" }
-  ]);
 
   const [selectedSources, setSelectedSources] = useState<string[]>(["1"]);
 
-  const addCharacteristic = () => {
-    setCharacteristics([...characteristics, { name: "", value: "" }]);
-  };
-
-  const removeCharacteristic = (index: number) => {
-    setCharacteristics(characteristics.filter((_, i) => i !== index));
-  };
-
-  const updateCharacteristic = (index: number, field: "name" | "value", value: string) => {
-    const updated = [...characteristics];
-    updated[index][field] = value;
-    setCharacteristics(updated);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +49,6 @@ const NewRequest = () => {
       const { data, error } = await supabase.functions.invoke("create-request", {
         body: {
           ...formData,
-          characteristics: characteristics.filter(c => c.name && c.value),
           source_ids: selectedSources,
         },
       });
@@ -169,44 +148,6 @@ const NewRequest = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Характеристики</CardTitle>
-              <CardDescription>Укажите важные параметры для подбора аналогов</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {characteristics.map((char, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    placeholder="Название (например: Ростовая группа)"
-                    value={char.name}
-                    onChange={(e) => updateCharacteristic(index, "name", e.target.value)}
-                    className="flex-1"
-                  />
-                  <Input
-                    placeholder="Значение (например: 128-140)"
-                    value={char.value}
-                    onChange={(e) => updateCharacteristic(index, "value", e.target.value)}
-                    className="flex-1"
-                  />
-                  {characteristics.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeCharacteristic(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button type="button" variant="outline" onClick={addCharacteristic} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Добавить характеристику
-              </Button>
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader>
