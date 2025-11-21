@@ -149,6 +149,24 @@ export type Database = {
           },
         ]
       }
+      folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       gpt_logs: {
         Row: {
           created_at: string
@@ -240,6 +258,7 @@ export type Database = {
           category: string | null
           created_at: string
           description: string
+          folder_id: string | null
           id: string
           quantity: number
           search_mode: Database["public"]["Enums"]["search_mode"]
@@ -253,6 +272,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description: string
+          folder_id?: string | null
           id?: string
           quantity: number
           search_mode?: Database["public"]["Enums"]["search_mode"]
@@ -266,6 +286,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string
+          folder_id?: string | null
           id?: string
           quantity?: number
           search_mode?: Database["public"]["Enums"]["search_mode"]
@@ -275,7 +296,15 @@ export type Database = {
           unit?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "requests_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sources: {
         Row: {
