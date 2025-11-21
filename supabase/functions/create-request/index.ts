@@ -73,7 +73,7 @@ serve(async (req) => {
         const mockPrices = sources.slice(0, 2).map((source: any) => ({
           analog_id: analogData.id,
           source_id: source.id,
-          source_name: source.name,
+          source_name: "Ссылка на товар",
           source_url: "https://example.com",
           price: Math.floor(Math.random() * 5000) + 10000,
           currency: "RUB"
