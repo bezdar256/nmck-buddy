@@ -20,15 +20,30 @@ const NewRequest = () => {
   
   const [formData, setFormData] = useState({
     title: "",
-    category: "",
     unit: "шт",
     quantity: 1,
     description: "",
     searchMode: "STRICT" as "STRICT" | "EXTENDED",
   });
 
+  const [categories, setCategories] = useState<string[]>([]);
+
 
   const [selectedSources, setSelectedSources] = useState<string[]>(["1"]);
+
+  const addCategory = () => {
+    setCategories([...categories, ""]);
+  };
+
+  const removeCategory = (index: number) => {
+    setCategories(categories.filter((_, i) => i !== index));
+  };
+
+  const updateCategory = (index: number, value: string) => {
+    const updated = [...categories];
+    updated[index] = value;
+    setCategories(updated);
+  };
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +64,7 @@ const NewRequest = () => {
       const { data, error } = await supabase.functions.invoke("create-request", {
         body: {
           ...formData,
+          category: categories.filter(c => c.trim()).join(", ") || null,
           source_ids: selectedSources,
         },
       });
@@ -101,13 +117,37 @@ const NewRequest = () => {
               </div>
 
               <div>
-                <Label htmlFor="category">Категория</Label>
-                <Input
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Например: Одежда"
-                />
+                <div className="flex items-center gap-2 mb-2">
+                  <Label>Категория</Label>
+                  <button
+                    type="button"
+                    onClick={addCategory}
+                    className="w-5 h-5 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
+                  >
+                    <Plus className="h-3 w-3 text-primary" />
+                  </button>
+                </div>
+                {categories.length > 0 && (
+                  <div className="space-y-2">
+                    {categories.map((category, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          value={category}
+                          onChange={(e) => updateCategory(index, e.target.value)}
+                          placeholder="Например: Одежда"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeCategory(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
