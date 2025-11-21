@@ -23,13 +23,12 @@ const NewRequest = () => {
     unit: "шт",
     quantity: 1,
     description: "",
-    searchMode: "STRICT" as "STRICT" | "EXTENDED",
   });
 
   const [categories, setCategories] = useState<string[]>([]);
 
 
-  const [selectedSources, setSelectedSources] = useState<string[]>(["1"]);
+  
 
   const addCategory = () => {
     setCategories([...categories, ""]);
@@ -49,7 +48,7 @@ const NewRequest = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.unit || !formData.description || selectedSources.length === 0) {
+    if (!formData.title || !formData.unit || !formData.description) {
       toast({
         title: "Ошибка",
         description: "Заполните все обязательные поля",
@@ -65,7 +64,8 @@ const NewRequest = () => {
         body: {
           ...formData,
           category: categories.filter(c => c.trim()).join(", ") || null,
-          source_ids: selectedSources,
+          search_mode: "STRICT",
+          source_ids: ["1", "2", "3"],
         },
       });
 
@@ -189,61 +189,6 @@ const NewRequest = () => {
           </Card>
 
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Параметры подбора</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Режим подбора аналогов</Label>
-                <RadioGroup
-                  value={formData.searchMode}
-                  onValueChange={(value) => setFormData({ ...formData, searchMode: value as "STRICT" | "EXTENDED" })}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="STRICT" id="strict" />
-                    <Label htmlFor="strict" className="font-normal cursor-pointer">
-                      Строгий (точное соответствие характеристикам)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="EXTENDED" id="extended" />
-                    <Label htmlFor="extended" className="font-normal cursor-pointer">
-                      Расширенный (допускаются близкие по характеристикам товары)
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label>Источники цен *</Label>
-                <div className="space-y-2 mt-2">
-                  {[
-                    { id: "1", name: "Маркетплейс A" },
-                    { id: "2", name: "Маркетплейс B" },
-                    { id: "3", name: "Внутренняя база" },
-                  ].map((source) => (
-                    <div key={source.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={source.id}
-                        checked={selectedSources.includes(source.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedSources([...selectedSources, source.id]);
-                          } else {
-                            setSelectedSources(selectedSources.filter(id => id !== source.id));
-                          }
-                        }}
-                      />
-                      <Label htmlFor={source.id} className="font-normal cursor-pointer">
-                        {source.name}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           <Button type="submit" size="lg" className="w-full" disabled={loading}>
             {loading ? (
