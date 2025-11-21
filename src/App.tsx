@@ -9,7 +9,6 @@ import NewRequest from "./pages/NewRequest";
 import RequestsList from "./pages/RequestsList";
 import RequestDetail from "./pages/RequestDetail";
 import Methodology from "./pages/Methodology";
-import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +26,6 @@ const App = () => (
             <Route path="/requests" element={<RequestsList />} />
             <Route path="/requests/:id" element={<RequestDetail />} />
             <Route path="/methodology" element={<Methodology />} />
-            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

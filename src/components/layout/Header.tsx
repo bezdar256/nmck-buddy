@@ -25,9 +25,6 @@ export const Header = () => {
             <Link to="/methodology" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
               Методика
             </Link>
-            <Link to="/admin" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Админка
-            </Link>
           </nav>
 
           <Button asChild className="hidden md:inline-flex">
