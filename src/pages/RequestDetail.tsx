@@ -135,8 +135,8 @@ const RequestDetail = () => {
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
               <span>Дата: {new Date(request.created_at).toLocaleDateString("ru-RU")}</span>
               {request.category && <span>Категория: {request.category}</span>}
-              <span>Единица: {request.unit}</span>
               <span>Количество: {request.quantity}</span>
+              <span>Единица: {request.unit}</span>
             </div>
           </div>
           <div className="flex gap-2">
