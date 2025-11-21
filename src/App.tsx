@@ -23,6 +23,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/requests/new" element={<NewRequest />} />
+            <Route path="/requests/new/:id" element={<NewRequest />} />
             <Route path="/requests" element={<RequestsList />} />
             <Route path="/requests/:id" element={<RequestDetail />} />
             <Route path="/methodology" element={<Methodology />} />

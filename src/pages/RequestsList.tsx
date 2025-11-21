@@ -353,9 +353,15 @@ const RequestsList = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => navigate(`/requests/${request.id}`)}
+                            onClick={() => {
+                              if (request.status === "draft") {
+                                navigate(`/requests/new/${request.id}`);
+                              } else {
+                                navigate(`/requests/${request.id}`);
+                              }
+                            }}
                           >
-                            Открыть
+                            {request.status === "draft" ? "Продолжить" : "Открыть"}
                           </Button>
                           <Button
                             variant="ghost"
