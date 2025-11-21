@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Download, RefreshCw, ExternalLink } from "lucide-react";
+import { Loader2, Download, RefreshCw, ExternalLink, FileSpreadsheet } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -137,6 +137,12 @@ const RequestDetail = () => {
               {request.category && <span>Категория: {request.category}</span>}
               <span>Количество: {request.quantity}</span>
               <span>Единица: {request.unit}</span>
+              {request.uploaded_file_name && (
+                <span className="flex items-center gap-1 text-green-600">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  {request.uploaded_file_name}
+                </span>
+              )}
             </div>
           </div>
           <div className="flex gap-2">

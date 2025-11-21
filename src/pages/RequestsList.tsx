@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Search, Trash2, FolderPlus, Folder, FolderOpen } from "lucide-react";
+import { Plus, Search, Trash2, FolderPlus, Folder, FolderOpen, FileSpreadsheet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -318,7 +318,10 @@ const RequestsList = () => {
                         {new Date(request.created_at).toLocaleDateString("ru-RU")}
                       </TableCell>
                       <TableCell>
-                        <Link to={`/requests/${request.id}`} className="font-medium hover:text-primary">
+                        <Link to={`/requests/${request.id}`} className="font-medium hover:text-primary flex items-center gap-2">
+                          {request.uploaded_file_name && (
+                            <FileSpreadsheet className="h-4 w-4 text-green-600" />
+                          )}
                           {request.title}
                         </Link>
                       </TableCell>

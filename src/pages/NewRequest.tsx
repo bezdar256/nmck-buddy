@@ -165,6 +165,7 @@ const NewRequest = () => {
         description: formData.description,
         category: categories.filter(c => c.trim()).join(", ") || null,
         status: "draft" as const,
+        uploaded_file_name: uploadedFile?.name || null,
       };
 
       if (isEditingDraft && id) {
@@ -236,6 +237,7 @@ const NewRequest = () => {
             quantity: formData.quantity,
             description: formData.description,
             category: categories.filter(c => c.trim()).join(", ") || null,
+            uploaded_file_name: uploadedFile?.name || null,
           })
           .eq("id", id);
 
@@ -250,6 +252,7 @@ const NewRequest = () => {
           search_mode: "STRICT",
           source_ids: ["1", "2", "3"],
           draft_id: isEditingDraft ? id : undefined,
+          uploaded_file_name: uploadedFile?.name || null,
         },
       });
 
