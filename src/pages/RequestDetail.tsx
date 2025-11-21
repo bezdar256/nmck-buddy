@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Download, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PriceAnalytics } from "@/components/analytics/PriceAnalytics";
 
 const RequestDetail = () => {
   const { id } = useParams();
@@ -274,7 +275,19 @@ const RequestDetail = () => {
               <CardTitle>Визуализация данных</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Графики будут добавлены позже</p>
+              {agg ? (
+                <PriceAnalytics
+                  aggregatedResult={agg}
+                  prices={request.analogs?.flatMap((analog: any) =>
+                    analog.prices?.map((price: any) => ({
+                      source_name: price.source_name,
+                      price: price.price,
+                    })) || []
+                  ) || []}
+                />
+              ) : (
+                <p className="text-muted-foreground">Недостаточно данных для визуализации</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
