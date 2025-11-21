@@ -152,16 +152,6 @@ const NewRequest = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="unit">Единица измерения *</Label>
-                  <Input
-                    id="unit"
-                    value={formData.unit}
-                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                    placeholder="шт, комплект, упаковка"
-                    required
-                  />
-                </div>
-                <div>
                   <Label htmlFor="quantity">Количество *</Label>
                   <Input
                     id="quantity"
@@ -169,6 +159,16 @@ const NewRequest = () => {
                     min="1"
                     value={formData.quantity}
                     onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="unit">Единица измерения *</Label>
+                  <Input
+                    id="unit"
+                    value={formData.unit}
+                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                    placeholder="шт, комплект, упаковка"
                     required
                   />
                 </div>
