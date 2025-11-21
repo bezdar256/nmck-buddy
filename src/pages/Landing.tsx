@@ -80,25 +80,6 @@ const Landing = () => {
           </Link>
         </div>
       </section>
-
-      {/* Preview Section */}
-      <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Превью интерфейса</h2>
-        <div className="max-w-4xl mx-auto">
-          <Card className="overflow-hidden">
-            <CardContent className="p-0">
-              <div className="aspect-video bg-gradient-to-br from-primary/5 to-accent/20 flex items-center justify-center">
-                <div className="text-center space-y-4 p-8">
-                  <BarChart3 className="h-24 w-24 text-primary mx-auto opacity-50" />
-                  <p className="text-lg text-muted-foreground">
-                    Интерактивные графики и таблицы для анализа цен
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
     </div>
   );
 };
