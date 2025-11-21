@@ -21,7 +21,7 @@ const Landing = () => {
               <Link to="/requests/new">Создать расчёт</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="text-lg px-8">
-              <Link to="/requests">Посмотреть пример</Link>
+              <Link to="/requests/444c2eae-ee50-47c6-a053-b85b957a3388">Посмотреть пример</Link>
             </Button>
           </div>
         </div>
